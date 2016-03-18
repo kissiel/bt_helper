@@ -74,15 +74,11 @@ class BtDbusManager:
                 path_keyword = "path")
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             try:
+                dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
                 dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
             except Exception as exc:
-                if exc.get_dbus_name() == 'org.bluez.Error.InProgress':
-                    logging.warning('Scan already in progress, restart it now')
-                    dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
-                    dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
-                else:
-                    logging.error('Unable to start scanning - {}'
-                                  .format(exc.get_dbus_message())
+                logging.error('Unable to start scanning - {}'
+                              .format(exc.get_dbus_message())
         mainloop = GObject.MainLoop()
         mainloop.run()
 

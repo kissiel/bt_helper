@@ -73,7 +73,12 @@ class BtDbusManager:
                 arg0 = "org.bluez.Device1",
                 path_keyword = "path")
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
-            dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
+            try:
+                dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
+                dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
+            except Exception as exc:
+                logging.error('Unable to start scanning - {}'
+                              .format(exc.get_dbus_message())
         mainloop = GObject.MainLoop()
         mainloop.run()
 

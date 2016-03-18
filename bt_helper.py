@@ -88,7 +88,7 @@ class BtAdapter():
 
     def ensure_powered(self):
         powered = self._prop_if.Get(IFACE, 'Powered')
-        logger.info('Powering on')
+        logger.info('Powering on {}'.format(self._if.object_path.split('/')[-1]))
         if powered:
             logger.info('Device already powered')
             return

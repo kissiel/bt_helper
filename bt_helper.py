@@ -1,7 +1,6 @@
 import dbus
 import dbus.mainloop.glib
 import sys
-import time
 import logging
 import time
 from gi.repository import GObject
@@ -89,12 +88,15 @@ class BtAdapter():
 
     def ensure_powered(self):
         powered = self._prop_if.Get(IFACE, 'Powered')
-        logger.info('Powering on')
+        logger.info('Powering on {}'.format(self._if.object_path.split('/')[-1]))
         if powered:
             logger.info('Device already powered')
             return
-        self.set_bool_prop('Powered', True)
-        logger.info('Powered on')
+        try:
+            self.set_bool_prop('Powered', True)
+            logger.info('Powered on')
+        except Exception as exc:
+            logging.error('Failed to power on - {}'.format(exc.get_dbus_message()))
 
 def properties_changed(interface, changed, invalidated, path):
     logger.info('Property changed for device @ %s. Change: %s', path, changed)

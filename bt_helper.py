@@ -81,8 +81,13 @@ class BtDbusManager:
                 path_keyword = "path")
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
-        mainloop = GObject.MainLoop()
-        mainloop.run()
+        GObject.timeout_add(10000, self._scan_timeout)
+        self._main_loop.run()
+
+    def _scan_timeout(self):
+        for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
+            dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
+        self._main_loop.quit()
 
 class BtAdapter():
     def __init__(self, dbus_iface, bt_mgr):

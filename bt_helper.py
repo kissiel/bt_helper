@@ -51,7 +51,7 @@ class BtDbusManager:
                         break
                 if rejected:
                     continue
-                yield dbus.Interface(device, DEVICE_IFACE)
+                yield BtDevice(dbus.Interface(device, DEVICE_IFACE), self)
             except KeyError as exc:
                 logger.info('Property %s not found on device %s',
                             exc, device.object_path)

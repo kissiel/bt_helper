@@ -24,6 +24,7 @@ class BtDbusManager:
         self._bt_root = self._bus.get_object('org.bluez', '/')
         self._manager = dbus.Interface(
             self._bt_root, 'org.freedesktop.DBus.ObjectManager')
+        self._main_loop = GObject.MainLoop()
 
     def _get_objects_by_iface(self, iface_name):
         for path, ifaces in self._manager.GetManagedObjects().items():
@@ -62,6 +63,12 @@ class BtDbusManager:
 
     def get_object_by_path(self, path):
         return self._manager.GetManagedObjects()[path]
+
+    def wait(self):
+        self._main_loop.run()
+
+    def resume(self):
+        self._main_loop.quit()
 
     def scan(self):
         self._bus.add_signal_receiver(interfaces_added,

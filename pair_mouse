@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+import bt_helper
+
+def main():
+    mgr = bt_helper.BtDbusManager()
+    adapters = list(mgr.get_bt_adapters())
+    for adapter in adapters:
+        adapter.ensure_powered()
+
+    devs = list(mgr.get_bt_devices(filters={'Address': 'C2:A5:FD:E5:9B:AA'}))
+    if not devs:
+        print('no devices found!')
+    for dev in devs:
+        dev.pair()
+        print('finished pairing.... or not')
+
+if __name__ == '__main__':
+    main()

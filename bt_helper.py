@@ -105,6 +105,32 @@ class BtAdapter():
         except Exception as exc:
             logging.error('Failed to power on - {}'.format(exc.get_dbus_message()))
 
+class BtDevice:
+    def __init__(self, dbus_iface, bt_mgr):
+        self._if = dbus_iface
+        self._bt_mgr = bt_mgr
+
+    def pair(self):
+        self._if.Pair(
+            reply_handler=self._pair_ok, error_handler=self._pair_error)
+        self._bt_mgr.wait()
+        self._if.Connect()
+
+    def unpair(self):
+        #XXX: implement me
+        pass
+
+
+    def _pair_ok(self):
+        logger.info('%s successfully paired', self._if.object_name)
+        self._bt_mgr.resume()
+
+    def _pair_error(self, error):
+        logger.warning('Pairing of %s device failed. %s', self._if.object_name,
+                    error)
+        self._bt_mgr.resume()
+
+
 def properties_changed(interface, changed, invalidated, path):
     logger.info('Property changed for device @ %s. Change: %s', path, changed)
         

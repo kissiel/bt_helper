@@ -119,6 +119,14 @@ class BtDevice:
         self._if.Pair(
             reply_handler=self._pair_ok, error_handler=self._pair_error)
         self._bt_mgr.wait()
+        try:
+            self._if.Connect()
+        except Exception as exc:
+            logging.error('Failed to connect - {}'.format(exc.get_dbus_message()))
+        
+        self._if.Pair(
+            reply_handler=self._pair_ok, error_handler=self._pair_error)
+        self._bt_mgr.wait()
         self._if.Connect()
 
     def unpair(self):

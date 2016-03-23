@@ -1,3 +1,24 @@
+# Copyright 2016 Canonical Ltd.
+# Written by:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#
+# This is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+"""
+This module provides a set of abstractions to ease the process of automating
+typical Bluetooth task like scanning for devices and pairing with them.
+
+It talks with BlueZ stack using dbus.
+"""
 import dbus
 import dbus.mainloop.glib
 import sys

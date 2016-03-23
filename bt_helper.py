@@ -40,6 +40,7 @@ BT_ANY = 0
 BT_KEYBOARD = int('0x2540', 16)
 
 class BtDbusManager:
+    """ Main point of contact with dbus factoring bt objects. """
     def __init__(self):
         self._bus = dbus.SystemBus()
         self._bt_root = self._bus.get_object('org.bluez', '/')
@@ -53,12 +54,22 @@ class BtDbusManager:
                 yield self._bus.get_object('org.bluez', path)
 
     def get_bt_adapters(self):
-        """Yields all found bluez adapter proxies."""
+        """Yield BtAdapter objects for each BT adapter found."""
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             yield BtAdapter(dbus.Interface(adapter, ADAPTER_IFACE), self)
 
     def get_bt_devices(self, category=BT_ANY, filters={}):
-        """Yields all bluez device proxies."""
+        """Yields BtDevice objects currently known to the system.
+
+        filters - specifies the characteristics of that a BT device must have
+        to be yielded. The keys of filters dictionary represent names of
+        parameters (as specified by the bluetooth DBus Api and represented by
+        DBus proxy object), and its values must match proxy values.
+        I.e. {'Paired': False}. For a full list of Parameters see:
+        http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/device-api.txt
+
+        Note that this function returns objects corresponding to BT devices
+        that were seen last time scanning was done."""
         for device in self._get_objects_by_iface(DEVICE_IFACE):
             obj = self.get_object_by_path(device.object_path)[DEVICE_IFACE]
             try:
@@ -92,6 +103,7 @@ class BtDbusManager:
         self._main_loop.quit()
 
     def scan(self, timeout=10):
+        """Scan for BT devices visible to all adapters.'"""
         self._bus.add_signal_receiver(interfaces_added,
                 dbus_interface = "org.freedesktop.DBus.ObjectManager",
                 signal_name = "InterfacesAdded")
@@ -120,6 +132,7 @@ class BtAdapter:
         self._prop_if.Set(IFACE, prop_name, dbus.Boolean(value))
 
     def ensure_powered(self):
+        """Turn the adapter on, and do nothing if already on."""
         powered = self._prop_if.Get(IFACE, 'Powered')
         logger.info('Powering on {}'.format(self._if.object_path.split('/')[-1]))
         if powered:
@@ -137,6 +150,12 @@ class BtDevice:
         self._bt_mgr = bt_mgr
 
     def pair(self):
+        """Pair the device.
+
+        This function will try pairing with the device and block until device
+        is paired, error occured or default timeout elapsed (whichever comes
+        first).
+        """
         self._if.Pair(
             reply_handler=self._pair_ok, error_handler=self._pair_error)
         self._bt_mgr.wait()

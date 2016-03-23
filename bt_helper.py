@@ -89,7 +89,7 @@ class BtDbusManager:
             dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
         self._main_loop.quit()
 
-class BtAdapter():
+class BtAdapter:
     def __init__(self, dbus_iface, bt_mgr):
         self._if = dbus_iface
         self._bt_mgr = bt_mgr

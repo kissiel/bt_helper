@@ -70,7 +70,7 @@ class BtDbusManager:
     def resume(self):
         self._main_loop.quit()
 
-    def scan(self):
+    def scan(self, timeout=10):
         self._bus.add_signal_receiver(interfaces_added,
                 dbus_interface = "org.freedesktop.DBus.ObjectManager",
                 signal_name = "InterfacesAdded")
@@ -81,7 +81,7 @@ class BtDbusManager:
                 path_keyword = "path")
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
-        GObject.timeout_add_seconds(10, self._scan_timeout)
+        GObject.timeout_add_seconds(timeout, self._scan_timeout)
         self._main_loop.run()
 
     def _scan_timeout(self):

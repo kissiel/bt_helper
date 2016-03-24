@@ -113,6 +113,10 @@ class BtDbusManager:
                 arg0 = "org.bluez.Device1",
                 path_keyword = "path")
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
+            try:
+                dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
+            except dbus.exceptions.DBusException:
+                pass
             dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
         GObject.timeout_add_seconds(timeout, self._scan_timeout)
         self._main_loop.run()

@@ -82,7 +82,7 @@ class BtDbusManager:
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             try:
                 dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
-            except dbus.exceptions.DBusException as exc:
+            except dbus.exceptions.DBusException:
                 pass
             dbus.Interface(adapter, ADAPTER_IFACE).StartDiscovery()
         GObject.timeout_add(10000, self._scan_timeout)

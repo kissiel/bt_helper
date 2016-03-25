@@ -170,8 +170,9 @@ class BtDevice:
     
     
     def unpair(self):
-        #XXX: implement me
-        pass
+        self._if.Disconnect()
+        # We will need to remove the device here
+        # this can be done by calling dbus.Interface(self, ADAPTER_IFACE).RemoveDevice(device_obj)
 
 
     def _pair_ok(self):

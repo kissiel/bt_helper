@@ -214,6 +214,10 @@ class BtDevice:
     def address(self):
         return self._obj['Address']
 
+    @property
+    def rssi(self):
+        return self._obj.get('RSSI', None)
+
     def _pair_ok(self):
         logger.info('%s successfully paired', self.name)
         self._bt_mgr.resume()

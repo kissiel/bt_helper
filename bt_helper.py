@@ -22,9 +22,7 @@ It talks with BlueZ stack using dbus.
 import dbus
 import dbus.service
 import dbus.mainloop.glib
-import sys
 import logging
-import time
 from gi.repository import GObject
 
 logger = logging.getLogger(__file__)
@@ -40,6 +38,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 BT_ANY = 0
 BT_KEYBOARD = int('0x2540', 16)
 
+
 class BtManager:
     """ Main point of contact with dbus factoring bt objects. """
     def __init__(self, verbose=False):
@@ -54,8 +53,8 @@ class BtManager:
 
     def _register_agent(self):
         path = "/bt_helper/agent"
-        agent = BtAgent(self._bus, path)
-        obj = self._bus.get_object('org.bluez', "/org/bluez");
+        BtAgent(self._bus, path)
+        obj = self._bus.get_object('org.bluez', "/org/bluez")
         agent_manager = dbus.Interface(obj, "org.bluez.AgentManager1")
         agent_manager.RegisterAgent(path, 'NoInputNoOutput')
         logger.info("Agent registered")
@@ -120,14 +119,16 @@ class BtManager:
 
     def scan(self, timeout=10):
         """Scan for BT devices visible to all adapters.'"""
-        self._bus.add_signal_receiver(interfaces_added,
-                dbus_interface = "org.freedesktop.DBus.ObjectManager",
-                signal_name = "InterfacesAdded")
-        self._bus.add_signal_receiver(properties_changed,
-                dbus_interface = "org.freedesktop.DBus.Properties",
-                signal_name = "PropertiesChanged",
-                arg0 = "org.bluez.Device1",
-                path_keyword = "path")
+        self._bus.add_signal_receiver(
+            interfaces_added,
+            dbus_interface="org.freedesktop.DBus.ObjectManager",
+            signal_name="InterfacesAdded")
+        self._bus.add_signal_receiver(
+            properties_changed,
+            dbus_interface="org.freedesktop.DBus.Properties",
+            signal_name="PropertiesChanged",
+            arg0="org.bluez.Device1",
+            path_keyword="path")
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             try:
                 dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
@@ -148,6 +149,7 @@ class BtManager:
             dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
         self._main_loop.quit()
 
+
 class BtAdapter:
     def __init__(self, dbus_iface, bt_mgr):
         self._if = dbus_iface
@@ -160,7 +162,8 @@ class BtAdapter:
     def ensure_powered(self):
         """Turn the adapter on, and do nothing if already on."""
         powered = self._prop_if.Get(IFACE, 'Powered')
-        logger.info('Powering on {}'.format(self._if.object_path.split('/')[-1]))
+        logger.info('Powering on {}'.format(
+            self._if.object_path.split('/')[-1]))
         if powered:
             logger.info('Device already powered')
             return
@@ -168,7 +171,9 @@ class BtAdapter:
             self.set_bool_prop('Powered', True)
             logger.info('Powered on')
         except Exception as exc:
-            logging.error('Failed to power on - {}'.format(exc.get_dbus_message()))
+            logging.error('Failed to power on - {}'.format(
+                exc.get_dbus_message()))
+
 
 class BtDevice:
     def __init__(self, dbus_iface, bt_mgr):
@@ -198,13 +203,14 @@ class BtDevice:
         try:
             self._if.Connect()
         except dbus.exceptions.DBusException as exc:
-            logging.error('Failed to connect - {}'.format(exc.get_dbus_message()))
-    
-    
+            logging.error('Failed to connect - {}'.format(
+                exc.get_dbus_message()))
+
     def unpair(self):
         self._if.Disconnect()
         # We will need to remove the device here
-        # this can be done by calling dbus.Interface(self, ADAPTER_IFACE).RemoveDevice(device_obj)
+        # this can be done by calling
+        # dbus.Interface(self, ADAPTER_IFACE).RemoveDevice(device_obj)
 
     @property
     def name(self):
@@ -226,8 +232,10 @@ class BtDevice:
         logger.warning('Pairing of %s device failed. %s', self.name, error)
         self._bt_mgr.resume()
 
+
 class Rejected(dbus.DBusException):
     _dbus_error_name = "org.bluez.Error.Rejected"
+
 
 class BtAgent(dbus.service.Object):
     """Agent authenticating everything what's possible."""
@@ -249,7 +257,7 @@ class BtAgent(dbus.service.Object):
     @dbus.service.method(AGENT_IFACE, in_signature="ouq", out_signature="")
     def DisplayPasskey(self, device, passkey, entered):
         print("DisplayPasskey (%s, %06u entered %u)" %
-                        (device, passkey, entered))
+              (device, passkey, entered))
 
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def DisplayPinCode(self, device, pincode):
@@ -271,7 +279,7 @@ class BtAgent(dbus.service.Object):
 
 def properties_changed(interface, changed, invalidated, path):
     logger.info('Property changed for device @ %s. Change: %s', path, changed)
-        
-        
+
+
 def interfaces_added(path, interfaces):
     logger.info('Added new bt interfaces: %s @ %s', interfaces, path)

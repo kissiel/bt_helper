@@ -182,14 +182,20 @@ class BtDevice:
         # We will need to remove the device here
         # this can be done by calling dbus.Interface(self, ADAPTER_IFACE).RemoveDevice(device_obj)
 
+    @property
+    def name(self):
+        return self._obj.get('Name', '<Unnamed>')
+
+    @property
+    def address(self):
+        return self._obj['Address']
 
     def _pair_ok(self):
-        logger.info('%s successfully paired', self._if.object_name)
+        logger.info('%s successfully paired', self.name)
         self._bt_mgr.resume()
 
     def _pair_error(self, error):
-        logger.warning('Pairing of %s device failed. %s', self._if.object_name,
-                    error)
+        logger.warning('Pairing of %s device failed. %s', self.name, error)
         self._bt_mgr.resume()
 
 

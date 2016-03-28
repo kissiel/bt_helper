@@ -28,7 +28,6 @@ from gi.repository import GObject
 
 logger = logging.getLogger(__file__)
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
 
 IFACE = 'org.bluez.Adapter1'
 ADAPTER_IFACE = 'org.bluez.Adapter1'
@@ -41,7 +40,9 @@ BT_KEYBOARD = int('0x2540', 16)
 
 class BtManager:
     """ Main point of contact with dbus factoring bt objects. """
-    def __init__(self):
+    def __init__(self, verbose=False):
+        if verbose:
+            logger.setLevel(logging.DEBUG)
         self._bus = dbus.SystemBus()
         self._bt_root = self._bus.get_object('org.bluez', '/')
         self._manager = dbus.Interface(

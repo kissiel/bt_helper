@@ -155,6 +155,12 @@ class BtDevice:
             self._if.object_path)[DEVICE_IFACE]
         self._bt_mgr = bt_mgr
 
+    def __str__(self):
+        return "{} ({})".format(self.name, self.address)
+
+    def __repr__(self):
+        return "<BtDevice name:{}, address:{}>".format(self.name, self.address)
+
     def pair(self):
         """Pair the device.
 

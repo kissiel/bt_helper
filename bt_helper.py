@@ -20,6 +20,7 @@ typical Bluetooth task like scanning for devices and pairing with them.
 It talks with BlueZ stack using dbus.
 """
 import dbus
+import dbus.service
 import dbus.mainloop.glib
 import sys
 import logging
@@ -32,6 +33,7 @@ logger.addHandler(logging.StreamHandler())
 IFACE = 'org.bluez.Adapter1'
 ADAPTER_IFACE = 'org.bluez.Adapter1'
 DEVICE_IFACE = 'org.bluez.Device1'
+AGENT_IFACE = 'org.bluez.Agent1'
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -48,6 +50,15 @@ class BtManager:
         self._manager = dbus.Interface(
             self._bt_root, 'org.freedesktop.DBus.ObjectManager')
         self._main_loop = GObject.MainLoop()
+        self._register_agent()
+
+    def _register_agent(self):
+        path = "/bt_helper/agent"
+        agent = BtAgent(self._bus, path)
+        obj = self._bus.get_object('org.bluez', "/org/bluez");
+        agent_manager = dbus.Interface(obj, "org.bluez.AgentManager1")
+        agent_manager.RegisterAgent(path, 'NoInputNoOutput')
+        logger.info("Agent registered")
 
     def _get_objects_by_iface(self, iface_name):
         for path, ifaces in self._manager.GetManagedObjects().items():
@@ -206,6 +217,48 @@ class BtDevice:
     def _pair_error(self, error):
         logger.warning('Pairing of %s device failed. %s', self.name, error)
         self._bt_mgr.resume()
+
+class Rejected(dbus.DBusException):
+    _dbus_error_name = "org.bluez.Error.Rejected"
+
+class BtAgent(dbus.service.Object):
+    """Agent authenticating everything what's possible."""
+    @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
+    def AuthorizeService(self, device, uuid):
+        logger.info("AuthorizeService (%s, %s)", device, uuid)
+
+    @dbus.service.method(AGENT_IFACE, in_signature="o", out_signature="u")
+    def RequestPasskey(self, device):
+        logger.info("RequestPasskey (%s)", device)
+        passkey = input("Enter passkey: ")
+        return dbus.UInt32(passkey)
+
+    @dbus.service.method(AGENT_IFACE, in_signature="o", out_signature="s")
+    def RequestPinCode(self, device):
+        logger.info("RequestPinCode (%s)", device)
+        return input("Enter PIN Code: ")
+
+    @dbus.service.method(AGENT_IFACE, in_signature="ouq", out_signature="")
+    def DisplayPasskey(self, device, passkey, entered):
+        print("DisplayPasskey (%s, %06u entered %u)" %
+                        (device, passkey, entered))
+
+    @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
+    def DisplayPinCode(self, device, pincode):
+        logger.info("DisplayPinCode (%s, %s)", device, pincode)
+        print('Type following pin on your device: {}'.format(pincode))
+
+    @dbus.service.method(AGENT_IFACE, in_signature="ou", out_signature="")
+    def RequestConfirmation(self, device, passkey):
+        logger.info("RequestConfirmation (%s, %06d)", device, passkey)
+
+    @dbus.service.method(AGENT_IFACE, in_signature="o", out_signature="")
+    def RequestAuthorization(self, device):
+        logger.info("RequestAuthorization (%s)", device)
+
+    @dbus.service.method(AGENT_IFACE, in_signature="", out_signature="")
+    def Cancel(self):
+        logger.info("Cancelled")
 
 
 def properties_changed(interface, changed, invalidated, path):

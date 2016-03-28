@@ -114,6 +114,10 @@ class BtManager:
     def resume(self):
         self._main_loop.quit()
 
+    def ensure_adapters_powered(self):
+        for adapter in self.get_bt_adapters():
+            adapter.ensure_powered()
+
     def scan(self, timeout=10):
         """Scan for BT devices visible to all adapters.'"""
         self._bus.add_signal_receiver(interfaces_added,

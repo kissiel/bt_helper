@@ -161,6 +161,7 @@ class BtDevice:
         self._obj = bt_mgr.get_object_by_path(
             self._if.object_path)[DEVICE_IFACE]
         self._bt_mgr = bt_mgr
+        self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.address)
@@ -175,6 +176,7 @@ class BtDevice:
         is paired, error occured or default timeout elapsed (whichever comes
         first).
         """
+        self._prop_if.Set(DEVICE_IFACE, 'Trusted', True)
         self._if.Pair(
             reply_handler=self._pair_ok, error_handler=self._pair_error)
         self._bt_mgr.wait()

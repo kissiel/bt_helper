@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+import bt_helper
+
+
+def main():
+    mgr = bt_helper.BtManager()
+    mgr.ensure_adapters_powered()
+    print('Scanning for devices')
+    mgr.scan()
+
+    keyboards = sorted(mgr.get_bt_devices(
+        category=bt_helper.BT_KEYBOARD, filters={'Paired': False}),
+         key=lambda x: int(x.rssi or -255), reverse=True)
+    if not keyboards:
+        print("No keyboards detected")
+        return
+    print('Detected keyboards (sorted by RSSI; highest first).')
+    # let's assing numbers to keyboards
+    keyboards = dict(enumerate(keyboards, 1))
+    for num, kb in keyboards.items():
+        print('{}. {} (RSSI: {})'.format(num, kb, kb.rssi))
+    chosen = False
+    while not chosen:
+        num = input('Which one would you like to connect to? (0 to exit) ')
+        if num == '0':
+            return
+        chosen = num.isnumeric() and int(num) in keyboards.keys()
+    print('{} chosen.'.format(keyboards[int(num)]))
+    keyboards[int(num)].pair()
+
+if __name__ == '__main__':
+    main()

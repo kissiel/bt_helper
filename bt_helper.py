@@ -121,6 +121,12 @@ class BtManager:
         GObject.timeout_add_seconds(timeout, self._scan_timeout)
         self._main_loop.run()
 
+    def get_devices(self, timeout=10, rescan=True):
+        """Scan for and list all devices visible to all adapters."""
+        if rescan:
+            self.scan(timeout)
+        return list(self.get_bt_devices())
+
     def _scan_timeout(self):
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()

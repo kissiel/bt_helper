@@ -39,7 +39,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 BT_ANY = 0
 BT_KEYBOARD = int('0x2540', 16)
 
-class BtDbusManager:
+class BtManager:
     """ Main point of contact with dbus factoring bt objects. """
     def __init__(self):
         self._bus = dbus.SystemBus()

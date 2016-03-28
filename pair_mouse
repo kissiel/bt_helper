@@ -3,7 +3,7 @@
 import bt_helper
 
 def main():
-    mgr = bt_helper.BtDbusManager()
+    mgr = bt_helper.BtManager()
     adapters = list(mgr.get_bt_adapters())
     for adapter in adapters:
         adapter.ensure_powered()

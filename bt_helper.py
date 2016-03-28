@@ -151,6 +151,8 @@ class BtAdapter:
 class BtDevice:
     def __init__(self, dbus_iface, bt_mgr):
         self._if = dbus_iface
+        self._obj = bt_mgr.get_object_by_path(
+            self._if.object_path)[DEVICE_IFACE]
         self._bt_mgr = bt_mgr
 
     def pair(self):

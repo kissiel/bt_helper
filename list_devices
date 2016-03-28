@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+
+from bt_helper import BtManager
+
+for dev in BtManager().get_devices():
+    print(dev)

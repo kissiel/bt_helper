@@ -107,6 +107,9 @@ class BtManager:
     def get_object_by_path(self, path):
         return self._manager.GetManagedObjects()[path]
 
+    def get_proxy_by_path(self, path):
+        return self._bus.get_object('org.bluez', path)
+
     def wait(self):
         self._main_loop.run()
 

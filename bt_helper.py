@@ -259,12 +259,13 @@ class BtAgent(dbus.service.Object):
     @dbus.service.method(AGENT_IFACE, in_signature="ouq", out_signature="")
     def DisplayPasskey(self, device, passkey, entered):
         print("DisplayPasskey (%s, %06u entered %u)" %
-              (device, passkey, entered))
+              (device, passkey, entered), flush=True)
 
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def DisplayPinCode(self, device, pincode):
         logger.info("DisplayPinCode (%s, %s)", device, pincode)
-        print('Type following pin on your device: {}'.format(pincode))
+        print('Type following pin on your device: {}'.format(pincode),
+              flush=True)
 
     @dbus.service.method(AGENT_IFACE, in_signature="ou", out_signature="")
     def RequestConfirmation(self, device, passkey):

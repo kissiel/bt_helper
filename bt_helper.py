@@ -211,9 +211,8 @@ class BtDevice:
 
     def unpair(self):
         self._if.Disconnect()
-        # We will need to remove the device here
-        # this can be done by calling
-        # dbus.Interface(self, ADAPTER_IFACE).RemoveDevice(device_obj)
+        adapter = self._bt_mgr.get_proxy_by_path(self._obj['Adapter'])
+        dbus.Interface(adapter, ADAPTER_IFACE).RemoveDevice(self._if)
 
     @property
     def name(self):

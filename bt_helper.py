@@ -116,7 +116,7 @@ class BtManager:
     def wait(self):
         self._main_loop.run()
 
-    def resume(self):
+    def quit_loop(self):
         self._main_loop.quit()
 
     def ensure_adapters_powered(self):
@@ -231,11 +231,11 @@ class BtDevice:
 
     def _pair_ok(self):
         logger.info('%s successfully paired', self.name)
-        self._bt_mgr.resume()
+        self._bt_mgr.quit_loop()
 
     def _pair_error(self, error):
         logger.warning('Pairing of %s device failed. %s', self.name, error)
-        self._bt_mgr.resume()
+        self._bt_mgr.quit_loop()
 
 
 class Rejected(dbus.DBusException):

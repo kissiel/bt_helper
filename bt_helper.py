@@ -243,7 +243,7 @@ class Rejected(dbus.DBusException):
 
 
 class BtAgent(dbus.service.Object):
-    """Agent authenticating everything what's possible."""
+    """Agent authenticating everything that is possible."""
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def AuthorizeService(self, device, uuid):
         logger.info("AuthorizeService (%s, %s)", device, uuid)

@@ -19,10 +19,11 @@ typical Bluetooth task like scanning for devices and pairing with them.
 
 It talks with BlueZ stack using dbus.
 """
+import logging
+
 import dbus
 import dbus.service
 import dbus.mainloop.glib
-import logging
 from gi.repository import GObject
 
 logger = logging.getLogger(__file__)

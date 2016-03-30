@@ -36,6 +36,8 @@ AGENT_IFACE = 'org.bluez.Agent1'
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
+# To get additional Bluetoot CoDs, check
+# https://www.bluetooth.com/specifications/assigned-numbers/baseband
 BT_ANY = 0
 BT_KEYBOARD = int('0x2540', 16)
 

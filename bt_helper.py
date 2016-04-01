@@ -42,6 +42,10 @@ BT_ANY = 0
 BT_KEYBOARD = int('0x2540', 16)
 
 
+class BtException(Exception):
+    pass
+
+
 class BtManager:
     """ Main point of contact with dbus factoring bt objects. """
     def __init__(self, verbose=False):
@@ -188,6 +192,7 @@ class BtDevice:
             self._if.object_path)[DEVICE_IFACE]
         self._bt_mgr = bt_mgr
         self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
+        self._pair_outcome = None
 
     def __str__(self):
         return "{} ({})".format(self.name, self.address)
@@ -206,6 +211,8 @@ class BtDevice:
         self._if.Pair(
             reply_handler=self._pair_ok, error_handler=self._pair_error)
         self._bt_mgr.wait()
+        if self._pair_outcome:
+            raise BtException(self._pair_outcome)
         try:
             self._if.Connect()
         except dbus.exceptions.DBusException as exc:
@@ -231,10 +238,12 @@ class BtDevice:
 
     def _pair_ok(self):
         logger.info('%s successfully paired', self.name)
+        self._pair_outcome = None
         self._bt_mgr.quit_loop()
 
     def _pair_error(self, error):
         logger.warning('Pairing of %s device failed. %s', self.name, error)
+        self._pair_outcome = error
         self._bt_mgr.quit_loop()
 
 

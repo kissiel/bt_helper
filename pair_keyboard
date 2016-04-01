@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import bt_helper
+import sys
 
 
 def main():
@@ -26,7 +27,11 @@ def main():
             return
         chosen = num.isnumeric() and int(num) in keyboards.keys()
     print('{} chosen.'.format(keyboards[int(num)]))
-    keyboards[int(num)].pair()
+    try:
+        keyboards[int(num)].pair()
+    except bt_helper.BtException as exc:
+        print("Unable to pair!", exc)
+        return 1
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

@@ -103,8 +103,8 @@ class BtManager:
                     continue
                 yield BtDevice(dbus.Interface(device, DEVICE_IFACE), self)
             except KeyError as exc:
-                logger.info('Property %s not found on device %s',
-                            exc, device.object_path)
+                logger.info('Property {} not found on device {}'.format(
+                            exc, device.object_path))
                 continue
 
     def get_prop_iface(self, obj):
@@ -237,12 +237,13 @@ class BtDevice:
         return self._obj.get('RSSI', None)
 
     def _pair_ok(self):
-        logger.info('%s successfully paired', self.name)
+        logger.info('{} successfully paired'.format(self.name))
         self._pair_outcome = None
         self._bt_mgr.quit_loop()
 
     def _pair_error(self, error):
-        logger.warning('Pairing of %s device failed. %s', self.name, error)
+        logger.warning('Pairing of {} device failed. {}'.format(
+            self.name, error))
         self._pair_outcome = error
         self._bt_mgr.quit_loop()
 
@@ -255,37 +256,39 @@ class BtAgent(dbus.service.Object):
     """Agent authenticating everything that is possible."""
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def AuthorizeService(self, device, uuid):
-        logger.info("AuthorizeService (%s, %s)", device, uuid)
+        logger.info("AuthorizeService ({}, {})".format(
+            device, uuid))
 
     @dbus.service.method(AGENT_IFACE, in_signature="o", out_signature="u")
     def RequestPasskey(self, device):
-        logger.info("RequestPasskey (%s)", device)
+        logger.info("RequestPasskey ({})".format(device))
         passkey = input("Enter passkey: ")
         return dbus.UInt32(passkey)
 
     @dbus.service.method(AGENT_IFACE, in_signature="o", out_signature="s")
     def RequestPinCode(self, device):
-        logger.info("RequestPinCode (%s)", device)
+        logger.info("RequestPinCode ({})".format(device))
         return input("Enter PIN Code: ")
 
     @dbus.service.method(AGENT_IFACE, in_signature="ouq", out_signature="")
     def DisplayPasskey(self, device, passkey, entered):
-        print("DisplayPasskey (%s, %06u entered %u)" %
-              (device, passkey, entered), flush=True)
+        print("DisplayPasskey ({}, {:06d} entered {})".format(
+              (device, passkey, entered)), flush=True)
 
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def DisplayPinCode(self, device, pincode):
-        logger.info("DisplayPinCode (%s, %s)", device, pincode)
+        logger.info("DisplayPinCode ({}, {})".format(
+            device, pincode))
         print('Type following pin on your device: {}'.format(pincode),
               flush=True)
 
     @dbus.service.method(AGENT_IFACE, in_signature="ou", out_signature="")
     def RequestConfirmation(self, device, passkey):
-        logger.info("RequestConfirmation (%s, %06d)", device, passkey)
+        logger.info("RequestConfirmation ({}, {:06d})".format(device, passkey))
 
     @dbus.service.method(AGENT_IFACE, in_signature="o", out_signature="")
     def RequestAuthorization(self, device):
-        logger.info("RequestAuthorization (%s)", device)
+        logger.info("RequestAuthorization ({})".format(device))
 
     @dbus.service.method(AGENT_IFACE, in_signature="", out_signature="")
     def Cancel(self):
@@ -293,8 +296,10 @@ class BtAgent(dbus.service.Object):
 
 
 def properties_changed(interface, changed, invalidated, path):
-    logger.info('Property changed for device @ %s. Change: %s', path, changed)
+    logger.info('Property changed for device @ {}. Change: {}'.format(
+        path, changed))
 
 
 def interfaces_added(path, interfaces):
-    logger.info('Added new bt interfaces: %s @ %s', interfaces, path)
+    logger.info('Added new bt interfaces: {} @ {}'.format(
+        interfaces, path))
